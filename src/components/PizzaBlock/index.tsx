@@ -1,10 +1,10 @@
 import React from 'react';
 import { TYPES_PIZZA } from '../../consts';
-import { useAppDispatch } from '../../hooks/redux';
-import { addPizza } from '../../store/reducers/cartSlice';
-// import isEqual from 'lodash.isequal';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { addItem, selectItemCountById } from '../../store/reducers/cartSlice';
+import { ICartItem } from '../../models/ICart';
 
-export interface PizzaBlockProps {
+interface IPizzaBlockProps {
   id: number;
   title: string;
   price: number;
@@ -13,24 +13,18 @@ export interface PizzaBlockProps {
   imageUrl: string;
 }
 
-function PizzaBlock({ id, title, price, sizes, types, imageUrl }: PizzaBlockProps) {
+const PizzaBlock: React.FC<IPizzaBlockProps> = ({ id, title, price, sizes, types, imageUrl }) => {
   const [activeSizeIndex, setActiveSizeIndex] = React.useState(0);
   const [activeTypeIndex, setActiveTypeIndex] = React.useState(types[0]);
-  // const cartList = useAppSelector((state) => state.cart.items);
-  // console.log('cartList', cartList);
 
-  //const item = cartList.find((item) => isEqual({ ...item, count: 1 }, {id, title, sizes, types, imageUrl, count: 1}));
+  const cartItemId = id + sizes[activeSizeIndex] + activeTypeIndex + price;
+  const count = useAppSelector(selectItemCountById(cartItemId));
 
-  // const countRef = React.useRef(0);
-  // const [count, setCount] = React.useState(0);
-  // const tempId = React.useId();
   const dispatch = useAppDispatch();
 
-  // console.log(activeTypeIndex, activeSizeIndex);
   const handleAddToCart = () => {
-    // console.log(activeTypeIndex, types[activeTypeIndex]);
-    const cartItem = {
-      id: id + sizes[activeSizeIndex] + activeTypeIndex,
+    const cartItem: ICartItem = {
+      id: id + sizes[activeSizeIndex] + activeTypeIndex + price,
       title,
       price,
       size: sizes[activeSizeIndex],
@@ -39,39 +33,8 @@ function PizzaBlock({ id, title, price, sizes, types, imageUrl }: PizzaBlockProp
       imageUrl,
     };
 
-    // console.log(cartItem);
-
-    dispatch(addPizza(cartItem));
-    // dispatch(incrementCount(cartItem));
-    // setCount(count + 1);
+    dispatch(addItem(cartItem));
   };
-
-  // React.useEffect(() => {
-  //   const item = cartList.find((item) => {
-  //     // console.log(
-  //     //   { ...item, count: 1 },
-  //     //   { id, imageUrl, price, size: activeSizeIndex, type: activeTypeIndex, title, count: 1 },
-  //     // );
-  //     return isEqual(
-  //       { ...item, count: 1 },
-  //       {
-  //         id,
-  //         imageUrl,
-  //         price,
-  //         size: sizes[activeSizeIndex],
-  //         type: activeTypeIndex,
-  //         title,
-  //         count: 1,
-  //       },
-  //     );
-  //   });
-  //   console.log(item);
-  //   if (item) {
-  //     setCount(item?.count);
-  //     // countRef.current = item?.count;
-  //   }
-  //   console.log('count', count);
-  // }, [activeSizeIndex, activeTypeIndex]);
 
   return (
     <div className="pizza-block-wrapper">
@@ -119,12 +82,12 @@ function PizzaBlock({ id, title, price, sizes, types, imageUrl }: PizzaBlockProp
               />
             </svg>
             <span>Добавить</span>
-            {/* <i>{count}</i> */}
+            {count && <i>{count}</i>}
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default PizzaBlock;

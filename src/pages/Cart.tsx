@@ -1,69 +1,48 @@
-import emptyCart from '../assets/img/empty-cart.png';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { TYPES_PIZZA } from '../consts';
-// import { useId } from 'react';
-// import { useDispatch } from 'react-redux';
 import {
-  removePizza,
+  removeItem,
   clearCart,
   incrementCount,
   decrementCount,
+  selectCart,
 } from '../store/reducers/cartSlice';
-import { ICartItem } from '../models/ICart';
+import EmptyCart from '../components/EmptyCart';
+import CartItem from '../components/CartItem';
+import React from 'react';
 
-interface ICartFuncArgs {
+export interface ICartDispatchArgs {
   id: number;
   price: number;
 }
 
-function Cart() {
-  // const { totalCount, totalPrice, items } = useAppSelector((state) => state.cart);
-  // console.log(totalCount, totalPrice, items);
-  const { totalCount, totalPrice, items } = useAppSelector((state) => state.cart);
+const Cart: React.FC = () => {
+  const cart = useAppSelector(selectCart);
   const dispatch = useAppDispatch();
-
   const navigate = useNavigate();
 
-  //items.length === 0
-  const isEmpty = items.length === 0;
+  const isEmpty = cart.items.length === 0;
 
   const handleClearCart = () => {
     dispatch(clearCart());
   };
 
-  const handleRemovePizza = (args: ICartFuncArgs) => {
-    dispatch(removePizza(args));
+  const handleRemoveItem = (args: ICartDispatchArgs) => {
+    dispatch(removeItem(args));
   };
 
-  const handleIncrementCount = (args: ICartFuncArgs) => {
+  const handleIncrementCount = (args: ICartDispatchArgs) => {
     dispatch(incrementCount(args));
   };
 
-  const handleDecrementCount = (args: ICartFuncArgs) => {
+  const handleDecrementCount = (args: ICartDispatchArgs) => {
     dispatch(decrementCount(args));
   };
-
-  // const cartList = items.map(item => {...item})
-  // const itemKeys = items.map(() => useId());
 
   return (
     <>
       {isEmpty ? (
-        <div className="container container--cart">
-          <div className="cart cart--empty">
-            <h2>Корзина пустая 😕</h2>
-            <p>
-              Вероятней всего, вы не заказывали ещё пиццу.
-              <br />
-              Для того, чтобы заказать пиццу, перейди на главную страницу.
-            </p>
-            <img src={emptyCart} alt="Empty cart" />
-            <button onClick={() => navigate(-1)} className="button button--black">
-              <span>Вернуться назад</span>
-            </button>
-          </div>
-        </div>
+        <EmptyCart />
       ) : (
         <div className="container container--cart">
           <div className="cart">
@@ -140,92 +119,23 @@ function Cart() {
               </div>
             </div>
             <div className="content__items">
-              {items.map((item) => (
-                <div key={item.id} className="cart__item">
-                  <div className="cart__item-img">
-                    <img className="pizza-block__image" src={item.imageUrl} alt="Pizza" />
-                  </div>
-                  <div className="cart__item-info">
-                    <h3>{item.title}</h3>
-                    <p>
-                      {TYPES_PIZZA[item.type]}, {item.size} см.
-                    </p>
-                  </div>
-                  <div className="cart__item-count">
-                    <div
-                      onClick={() => handleDecrementCount({ id: item.id, price: item.price })}
-                      className="button button--outline button--circle cart__item-count-minus">
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 10 10"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M5.92001 3.84V5.76V8.64C5.92001 9.17016 5.49017 9.6 4.96001 9.6C4.42985 9.6 4.00001 9.17016 4.00001 8.64L4 5.76L4.00001 3.84V0.96C4.00001 0.42984 4.42985 0 4.96001 0C5.49017 0 5.92001 0.42984 5.92001 0.96V3.84Z"
-                          fill="#EB5A1E"
-                        />
-                        <path
-                          d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z"
-                          fill="#EB5A1E"
-                        />
-                      </svg>
-                    </div>
-                    <b>{item.count}</b>
-                    <div
-                      onClick={() => handleIncrementCount({ id: item.id, price: item.price })}
-                      className="button button--outline button--circle cart__item-count-plus">
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 10 10"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M5.92001 3.84V5.76V8.64C5.92001 9.17016 5.49017 9.6 4.96001 9.6C4.42985 9.6 4.00001 9.17016 4.00001 8.64L4 5.76L4.00001 3.84V0.96C4.00001 0.42984 4.42985 0 4.96001 0C5.49017 0 5.92001 0.42984 5.92001 0.96V3.84Z"
-                          fill="#EB5A1E"
-                        />
-                        <path
-                          d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z"
-                          fill="#EB5A1E"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="cart__item-price">
-                    <b>{item.price} ₽</b>
-                  </div>
-                  <div
-                    onClick={() => handleRemovePizza({ id: item.id, price: item.price })}
-                    className="cart__item-remove">
-                    <div className="button button--outline button--circle">
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 10 10"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M5.92001 3.84V5.76V8.64C5.92001 9.17016 5.49017 9.6 4.96001 9.6C4.42985 9.6 4.00001 9.17016 4.00001 8.64L4 5.76L4.00001 3.84V0.96C4.00001 0.42984 4.42985 0 4.96001 0C5.49017 0 5.92001 0.42984 5.92001 0.96V3.84Z"
-                          fill="#EB5A1E"
-                        />
-                        <path
-                          d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z"
-                          fill="#EB5A1E"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
+              {cart.items.map((item) => (
+                <CartItem
+                  key={item.id}
+                  {...item}
+                  handleRemoveItem={handleRemoveItem}
+                  handleIncrementCount={handleIncrementCount}
+                  handleDecrementCount={handleDecrementCount}
+                />
               ))}
             </div>
             <div className="cart__bottom">
               <div className="cart__bottom-details">
                 <span>
-                  Всего пицц: <b>{totalCount} шт.</b>
+                  Всего пицц: <b>{cart.totalCount} шт.</b>
                 </span>
                 <span>
-                  Сумма заказа: <b>{totalPrice} ₽</b>
+                  Сумма заказа: <b>{cart.totalPrice} ₽</b>
                 </span>
               </div>
               <div className="cart__bottom-buttons">
@@ -259,6 +169,6 @@ function Cart() {
       )}
     </>
   );
-}
+};
 
 export default Cart;

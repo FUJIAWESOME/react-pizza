@@ -9,6 +9,10 @@
   font-size: 20px;
   padding: 10px 40px;
   padding-left: 10px;
+
+  @media (max-width: 924px) {
+    margin-top: 30px;
+  }
 }
 
 .closeIcon {
@@ -18,9 +22,13 @@
   right: 7px;
   cursor: pointer;
 
-  &:hover {
-    top: 9px;
-    right: 5px;
-    width: 32px;
+  // &:hover {
+  //   top: 9px;
+  //   right: 5px;
+  //   width: 32px;
+  // }
+
+  @media (max-width: 924px) {
+    top: 40px;
   }
 }

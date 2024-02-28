@@ -1,9 +1,9 @@
 import { CATEGORIES } from '../consts';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { updateCategory } from '../store/reducers/filterSlice';
+import { selectCategory, updateCategory } from '../store/reducers/filterSlice';
 
-function Categories() {
-  const activeIndex = useAppSelector((state) => state.filter.category);
+const Categories: React.FC = () => {
+  const activeIndex = useAppSelector(selectCategory);
 
   const dispatch = useAppDispatch();
 
@@ -21,6 +21,6 @@ function Categories() {
       </ul>
     </div>
   );
-}
+};
 
 export default Categories;

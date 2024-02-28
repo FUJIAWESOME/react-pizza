@@ -1,44 +1,32 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { IPizzaItem } from '../../models/IPizzaItem';
-import { SORT_PARAMS, URL_API } from '../../consts';
+import { URL_API } from '../../consts';
 import { IFilter } from '../../models/IFilter';
+import { RootState } from '../store';
+import { getParamsByFilter } from '../../utils/getParamsByFilter';
+
+export enum FetchPizzaStatuses {
+  LOADING = 'LOADING',
+  SUCCESS = 'SUCCESS',
+  ERROR = 'ERROR',
+}
 
 export interface IPizzaState {
-  isLoading: boolean;
+  status: FetchPizzaStatuses;
   items: IPizzaItem[];
-  error: null | string | unknown;
 }
 
 const initialState: IPizzaState = {
-  isLoading: false,
+  status: FetchPizzaStatuses.LOADING,
   items: [],
-  error: null,
 };
 
-export const getPizzas = createAsyncThunk('pizzas/getPizzas', async (filter: IFilter, thunkApi) => {
-  try {
-    // const params = new URLSearchParams();
+export const getPizzas = createAsyncThunk('pizzas/getPizzas', async (filter: IFilter) => {
+  const params = getParamsByFilter(filter);
 
-    // params.append('sortBy', SORT_PARAMS[filter.sortBy]);
-    // params.append('order', 'desc');
-
-    // const isSelectedCategory = filter.category;
-    // if (isSelectedCategory) {
-    //   params.append('category', String(filter.category));
-    // }
-    // const res = await axios.get<IPizzaItem[]>(URL_API, { params });
-
-    const categoryParams = filter.category ? `&category=${filter.category}` : '';
-    const searchParams = filter.search ? `&search=${filter.search}` : '';
-    const params = `?sortBy=${SORT_PARAMS[filter.sortBy]}` + categoryParams + searchParams;
-
-    const res = await axios.get<IPizzaItem[]>(URL_API + params);
-    return res.data;
-  } catch (error) {
-    console.log(error);
-    return thunkApi.rejectWithValue('Error');
-  }
+  const res = await axios.get<IPizzaItem[]>(URL_API + params);
+  return res.data;
 });
 
 export const pizzaSlice = createSlice({
@@ -48,19 +36,20 @@ export const pizzaSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getPizzas.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+        state.items = [];
+        state.status = FetchPizzaStatuses.LOADING;
       })
-      .addCase(getPizzas.fulfilled, (state, action) => {
+      .addCase(getPizzas.fulfilled, (state, action: PayloadAction<IPizzaItem[]>) => {
         state.items = action.payload;
-        state.isLoading = false;
+        state.status = FetchPizzaStatuses.SUCCESS;
       })
-      .addCase(getPizzas.rejected, (state, action) => {
-        state.error = action.payload;
-        state.isLoading = false;
+      .addCase(getPizzas.rejected, (state) => {
+        state.status = FetchPizzaStatuses.ERROR;
         state.items = [];
       });
   },
 });
+
+export const selectPizza = (state: RootState) => state.pizza;
 
 export default pizzaSlice.reducer;

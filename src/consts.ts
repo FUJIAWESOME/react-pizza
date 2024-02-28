@@ -4,7 +4,6 @@ export const TYPES_PIZZA = ['тонкое', 'традиционное'];
 
 export const CATEGORIES = ['Все', 'Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые'];
 
-// export const SORT_OPTIONS = ['популярности', 'цене', 'алфавиту'];
 export const SORT_OPTIONS = [
   'популярности (по возрастанию)',
   'популярности (по убыванию)',
@@ -23,4 +22,8 @@ export const SORT_PARAMS = [
   'title&order=desc',
 ];
 
-// export const SORT_PARAMS = ['rating', 'price', 'title'];
+// export const FETCH_STATUSES = {
+//   LOADING: 'LOADING',
+//   SUCCESS: 'SUCCESS',
+//   ERROR: 'ERROR',
+// };

@@ -1,27 +1,29 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { ICartItem } from '../../models/ICart';
-// import isEqual from 'lodash.isequal';
+import { RootState } from '../store';
+import { getCartFromLS } from '../../utils/getCartFromLS';
+import { ICartDispatchArgs } from '../../pages/Cart';
 
-interface ICartState {
+export interface ICartState {
   items: ICartItem[];
   totalCount: number;
   totalPrice: number;
 }
 
+const cart: ICartState = getCartFromLS();
+
 const initialState: ICartState = {
-  items: [],
-  totalCount: 0,
-  totalPrice: 0,
+  items: cart.items,
+  totalCount: cart.totalCount,
+  totalPrice: cart.totalPrice,
 };
 
 export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addPizza: (state, action) => {
-      // const item = state.items.find((item) => isEqual({ ...item, count: 1 }, action.payload));
+    addItem: (state, action: PayloadAction<ICartItem>) => {
       const item = state.items.find((item) => item.id === action.payload.id);
-      // item ? (item.count += 1) : state.items.push(action.payload);
 
       if (item) {
         item.count += 1;
@@ -33,14 +35,7 @@ export const cartSlice = createSlice({
       state.totalCount += 1;
       state.totalPrice += action.payload.price;
     },
-    removePizza: (state, action) => {
-      // const currentItem = state.items.find((item) =>
-      //   isEqual({ ...item, count: 1 }, action.payload),
-      // );
-
-      // if (currentItem) {
-      //   state.items = state.items.filter((item: ICartItem) => item.id !== currentItem.id);
-      // }
+    removeItem: (state, action: PayloadAction<ICartDispatchArgs>) => {
       const { id, price } = action.payload;
       const isLastItem = state.items.length === 1;
       if (isLastItem) {
@@ -51,34 +46,28 @@ export const cartSlice = createSlice({
         state.totalPrice -= price;
       }
 
-      state.items = state.items.filter((item: ICartItem) => item.id !== id);
+      state.items = state.items.filter((item) => item.id !== id);
     },
-    incrementCount: (state, action) => {
+    incrementCount: (state, action: PayloadAction<ICartDispatchArgs>) => {
       const { id, price } = action.payload;
       const item = state.items.find((item) => item.id === id);
       if (item) {
+        const count = item.count;
+        item.price += price / count;
         item.count += 1;
-        item.price += price;
 
         state.totalCount += 1;
-        state.totalPrice += price;
+        state.totalPrice += price / count;
       }
-      // const currentItem = state.items.find((item) =>
-      //   isEqual({ ...item, count: 1 }, action.payload),
-      // );
-
-      // if (currentItem) {
-      //   currentItem.count += 1;
-      // }
     },
-    decrementCount: (state, action) => {
+    decrementCount: (state, action: PayloadAction<ICartDispatchArgs>) => {
       const { id, price } = action.payload;
       const item = state.items.find((item) => item.id === id);
       if (item) {
         const count = item.count;
         const isLastItem = item.count === 1;
         if (isLastItem) {
-          state.items = state.items.filter((item: ICartItem) => item.id !== id);
+          state.items = state.items.filter((item) => item.id !== id);
         } else {
           item.price -= price / count;
           item.count -= 1;
@@ -96,7 +85,11 @@ export const cartSlice = createSlice({
   },
 });
 
-export const { addPizza, removePizza, incrementCount, decrementCount, clearCart } =
-  cartSlice.actions;
+export const selectCart = (state: RootState) => state.cart;
+
+export const selectItemCountById = (id: number) => (state: RootState) =>
+  state.cart.items.find((item) => item.id === id)?.count;
+
+export const { addItem, removeItem, incrementCount, decrementCount, clearCart } = cartSlice.actions;
 
 export default cartSlice.reducer;

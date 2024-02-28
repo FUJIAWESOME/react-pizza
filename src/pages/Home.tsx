@@ -5,15 +5,14 @@ import Sort from '../components/Sort';
 import Skeleton from '../components/PizzaBlock/Skeleton';
 import { IPizzaItem } from '../models/IPizzaItem';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { getPizzas } from '../store/reducers/pizzaSlice';
+import { FetchPizzaStatuses, getPizzas, selectPizza } from '../store/reducers/pizzaSlice';
 import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
-import { updateFilters } from '../store/reducers/filterSlice';
+import { selectFilter, updateFilters } from '../store/reducers/filterSlice';
 
-function HomePage() {
-  const pizzas = useAppSelector((state) => state.pizza.items);
-  const isLoading = useAppSelector((state) => state.pizza.isLoading);
-  const filter = useAppSelector((state) => state.filter);
+const Home: React.FC = () => {
+  const { items, status } = useAppSelector(selectPizza);
+  const filter = useAppSelector(selectFilter);
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
@@ -27,7 +26,7 @@ function HomePage() {
 
     if (!isEmptyParams) {
       const params = qs.parse(urlParams.substring(1));
-      dispatch(updateFilters({ ...params }));
+      dispatch(updateFilters({ ...filter, ...params }));
       isSearch.current = true;
     }
   }, []);
@@ -45,8 +44,11 @@ function HomePage() {
   React.useEffect(() => {
     if (isMounted.current) {
       const params = qs.stringify({ sortBy: filter.sortBy, category: filter.category });
-
-      navigate(`?${params}`);
+      if (filter.sortBy !== 0 || filter.category !== 0) {
+        navigate(`?${params}`);
+      } else {
+        navigate(`/`);
+      }
     }
 
     isMounted.current = true;
@@ -60,12 +62,20 @@ function HomePage() {
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">
-        {isLoading
+        {status === FetchPizzaStatuses.LOADING
           ? [...new Array(10)].map((_, index) => <Skeleton key={index} />)
-          : pizzas.map((item: IPizzaItem) => <PizzaBlock key={item.id} {...item} />)}
+          : items.map((item: IPizzaItem) => <PizzaBlock key={item.id} {...item} />)}
       </div>
+      {status === FetchPizzaStatuses.ERROR && (
+        <div className="container">
+          <div className="error">
+            <h2>Произошла ошибка 😕</h2>
+            <p>Не удалось получить пиццы.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
-export default HomePage;
+export default Home;

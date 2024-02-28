@@ -1,15 +1,14 @@
-import React, { LegacyRef, useEffect } from 'react';
+import React from 'react';
 import { SORT_OPTIONS } from '../consts';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { updateSort } from '../store/reducers/filterSlice';
+import { selectSortBy, updateSort } from '../store/reducers/filterSlice';
 
-function Sort() {
+const Sort: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const selectedSortIndex = useAppSelector((state) => state.filter.sortBy);
+  const selectedSortIndex = useAppSelector(selectSortBy);
   const dispatch = useAppDispatch();
 
-  // const popupRef = React.useRef() as LegacyRef<HTMLDivElement> | undefined | null;
-  const popupRef = React.useRef() as any;
+  const popupRef = React.useRef<HTMLDivElement>(null);
 
   const sortName = SORT_OPTIONS[selectedSortIndex];
 
@@ -18,13 +17,13 @@ function Sort() {
     setIsOpen(false);
   };
 
-  const togglePopup = (e: any) => {
+  const togglePopup = (e: React.MouseEvent<HTMLSpanElement>) => {
     e.stopPropagation();
     setIsOpen(!isOpen);
   };
 
-  useEffect(() => {
-    const closePopupHandler = (e: any) => {
+  React.useEffect(() => {
+    const closePopupHandler = (e: MouseEvent) => {
       const isInsideClick = e.target === popupRef.current;
 
       if (!isInsideClick) {
@@ -74,6 +73,6 @@ function Sort() {
       )}
     </div>
   );
-}
+};
 
 export default Sort;

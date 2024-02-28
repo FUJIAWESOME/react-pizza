@@ -5,9 +5,8 @@ import { updateSearch } from '../../store/reducers/filterSlice';
 import debounce from 'lodash.debounce';
 import React from 'react';
 
-function Search() {
+const Search: React.FC = () => {
   const [inputValue, setInputValue] = React.useState('');
-  // const searchValue = useAppSelector((state) => state.filter.search);
   const dispatch = useAppDispatch();
 
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -20,8 +19,6 @@ function Search() {
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // debounce(() => dispatch(updateSearch(e.target.value)), 1000)();
-    // dispatch(updateSearch(e.target.value));
     setInputValue(e.target.value);
     updateValue(e.target.value);
   };
@@ -47,6 +44,6 @@ function Search() {
       )}
     </div>
   );
-}
+};
 
 export default Search;

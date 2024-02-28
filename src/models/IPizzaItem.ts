@@ -5,6 +5,6 @@ export interface IPizzaItem {
   sizes: Array<number>;
   types: Array<number>;
   imageUrl: string;
-  // category?: number;
-  // rating?: number;
+  category: number;
+  rating: number;
 }
